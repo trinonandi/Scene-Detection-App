@@ -1,13 +1,16 @@
 import json
 
+import firebase_admin
 import requests
 from flask import Flask, request, jsonify
-from utils import firebase_utils, validation_utils
+from utils import validation_utils, firebase_utils
+from firebase_admin import auth
 
 app = Flask(__name__)
 
-firebase = firebase_utils.get_firebase_client()
-auth = firebase.auth()
+firebase_client = firebase_utils.get_firebase_client()
+
+default_app = firebase_admin.initialize_app()
 
 
 @app.route('/signup', methods=['POST'])
@@ -34,10 +37,9 @@ def signup():  # put application's code here
         return jsonify(invalid_password_response), 400
 
     try:
-        user = auth.create_user_with_email_and_password(email, password)
-        print(user)
-        auth.update_profile(user["idToken"], display_name=display_name)
-        auth.send_email_verification(user["idToken"])
+        user = firebase_client.auth().create_user_with_email_and_password(email, password)
+        firebase_client.auth().update_profile(user["idToken"], display_name=display_name)
+        firebase_client.auth().send_email_verification(user["idToken"])
         success_response = {
             "message": "User Successfully Created. Please Verify Email",
             "code": 200
