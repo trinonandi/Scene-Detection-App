@@ -2,7 +2,7 @@ import os
 
 import pyrebase
 from dotenv import load_dotenv
-# TODO: Add the secrets into environment variables
+
 load_dotenv()
 
 firebase_config = {
