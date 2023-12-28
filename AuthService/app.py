@@ -57,8 +57,8 @@ def signin():
     password = body.get("password")
 
     try:
-        user = auth.sign_in_with_email_and_password(email, password)
-        account_info = auth.get_account_info(user["idToken"])
+        user = firebase_client.auth.sign_in_with_email_and_password(email, password)
+        account_info = firebase_client.auth.get_account_info(user["idToken"])
         email_verified = account_info["users"][0]["emailVerified"]
 
         if not email_verified:
@@ -66,7 +66,7 @@ def signin():
                 "message": "Email is not verified. A new verification link is sent to the registered email",
                 "code": 401
             }
-            auth.send_email_verification(user["idToken"])
+            firebase_client.auth.send_email_verification(user["idToken"])
             return jsonify(verify_email_response), 401
 
         return user, 200
@@ -87,7 +87,7 @@ def forgot_password():
         return jsonify(invalid_email_response), 400
 
     try:
-        auth.send_password_reset_email(email)
+        firebase_client.auth.send_password_reset_email(email)
         forgot_password_email_response = {
             "message": "Password reset link has been sent to the email provided",
             "code": 200
@@ -100,7 +100,7 @@ def forgot_password():
 
 # By default user id token remains valid for 1 hr. Refresh will generate a new id token with 1 hr validity
 def refresh_user_id_token(refresh_token):
-    return auth.refresh(refresh_token)
+    return firebase_client.auth.refresh(refresh_token)
 
 
 if __name__ == '__main__':
