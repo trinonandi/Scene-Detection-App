@@ -2,15 +2,17 @@ import json
 
 import firebase_admin
 import requests
+from firebase_admin import credentials
 from flask import Flask, request, jsonify
 from utils import validation_utils, firebase_utils
 
 
 app = Flask(__name__)
+cred = credentials.Certificate('firebase-admin-sdk.json')
 
 firebase_client = firebase_utils.get_firebase_client()
 
-default_app = firebase_admin.initialize_app()
+default_app = firebase_admin.initialize_app(cred)
 
 
 @app.route('/signup', methods=['POST'])
