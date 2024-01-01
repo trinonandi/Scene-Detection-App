@@ -3,7 +3,7 @@ import os
 
 import boto3
 from dotenv import load_dotenv
-from utils.ProgressPercentage import ProgressPercentage
+from utils.progress_percentage import ProgressPercentage
 
 load_dotenv()
 
