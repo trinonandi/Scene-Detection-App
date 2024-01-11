@@ -15,9 +15,5 @@ AWS_BUCKET_NAME = os.getenv('AWS_BUCKET_NAME')
 s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY)
 
 
-def upload_file(file, file_size):
-    s3.upload_fileobj(file,
-                      AWS_BUCKET_NAME,
-                      file.filename,
-                      Callback=ProgressPercentage(file.filename, file_size)
-                      )
+def upload_file(file, file_size, socketio, socket_id):
+    s3.upload_fileobj(file, AWS_BUCKET_NAME, file.filename, Callback=ProgressPercentage(file.filename, file_size, socketio, socket_id))
