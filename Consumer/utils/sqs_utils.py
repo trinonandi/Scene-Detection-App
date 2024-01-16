@@ -7,7 +7,7 @@ import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 
-from utils.rekognition import get_result
+from utils import rekognition
 
 load_dotenv()
 
@@ -64,9 +64,6 @@ def get_sqs_message_success(job_id, file_name):
             break
 
     if succeeded:
-        get_result(job_id, file_name)
+        rekMessage.get_result(job_id, file_name)
     else:
         print("Job FAILED with reason" + rekMessage['Message'])
-
-
-

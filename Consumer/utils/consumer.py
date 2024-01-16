@@ -5,7 +5,7 @@ import ssl
 from dotenv import load_dotenv
 
 from utils import rekognition
-from utils.sqs_util import get_sqs_message_success
+from utils.sqs_utils import get_sqs_message_success
 
 load_dotenv()
 
@@ -30,14 +30,15 @@ def consume():
 
 
 def callback(ch, method, properties, body):
-    print(f"Received message: {body.decode('utf-8')}")
+    video_identifier = body.decode('utf-8')
+    print(f"Received message: {video_identifier}")
     # call the rekognition apu and start the job with a jobid
-    job_id = rekognition.start_detect(body.decode('utf-8'))
+    job_id = rekognition.start_detect(video_identifier)
     if job_id is not None:
         # pass the jodid and match with the messages received and sqs and check status
         # if status success get the result
         # store the result to s3
-        get_sqs_message_success(job_id, body.decode('utf-8'))
+        get_sqs_message_success(job_id, video_identifier)
 
 
 if __name__ == '__main__':

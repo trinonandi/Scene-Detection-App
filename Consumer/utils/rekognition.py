@@ -12,13 +12,13 @@ load_dotenv()
 AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
 AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
 AWS_BUCKET_NAME = os.getenv('AWS_BUCKET_NAME')
-rek = boto3.client('rekognition', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY,
-                   region_name='ap-south-1')
+rekognition_client = boto3.client('rekognition', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY,
+                                  region_name='ap-south-1')
 
 
 def start_detect(file_name):
     try:
-        res = rek.start_segment_detection(
+        res = rekognition_client.start_segment_detection(
             Video={
                 'S3Object': {
                     "Bucket": AWS_BUCKET_NAME,
@@ -44,7 +44,7 @@ def start_detect(file_name):
         # Handle general BotoCore errors
         print(f"BotoCoreError: {e}")
     except ClientError as e:
-        # Handle specific client errors
+        # Handle specific Rekognition client errors
         error_code = e.response['Error']['Code']
         error_message = e.response['Error']['Message']
         print(f"ClientError: {error_code} - {error_message}")
@@ -55,9 +55,11 @@ def start_detect(file_name):
 
 
 def get_result(job_id, file_name):
-    response = rek.get_segment_detection(JobId=job_id)
+    response = rekognition_client.get_segment_detection(JobId=job_id)
     # Convert JSON data to string
     json_str = json.dumps(response['Segments'])
+
+    # TODO: Needs a better naming convention
     file_name = file_name.replace("video", "result").split(".")[0] + ".json"
     print(file_name)
     print(json_str)
