@@ -49,6 +49,8 @@
                 console.log(file.size)
                 const formData = new FormData(form);
                 formData.append('fileSize', file.size)
+                formData.append('pyscene-threshold', '20')
+                formData.append('pyscene-min-scene-length', '60')
                 console.log(formData.entries())
                 fetch("/upload/" + socketid, {
                     method: "POST",

@@ -1,3 +1,4 @@
+import json
 import os
 import pika
 import ssl
@@ -30,8 +31,10 @@ def consume():
 
 
 def callback(ch, method, properties, body):
-    video_identifier = body.decode('utf-8')
-    print(f"Received message: {video_identifier}")
+    message = json.loads(body.decode('utf-8'))
+    print(message)
+    video_identifier = message.get('file_name')
+
     # call the rekognition apu and start the job with a jobid
     job_id = rekognition.start_detect(video_identifier)
     if job_id is not None:

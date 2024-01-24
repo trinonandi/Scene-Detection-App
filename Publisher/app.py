@@ -1,3 +1,5 @@
+import json
+
 from botocore.exceptions import NoCredentialsError
 from flask import Flask, request, send_from_directory
 from utils import aws_utils, rabbitmq_util
@@ -22,6 +24,8 @@ def upload(socket_id):  # put application's code here
     print(request.files.keys())
     uploaded_file = request.files['file']
     file_size = request.values.get('fileSize')
+    pyscene_threshold = request.values.get('pyscene-threshold')
+    min_scene_length = request.values.get('pyscene-min-scene-length')
     try:
         aws_utils.upload_file(uploaded_file, file_size, socketio, socket_id)
 
@@ -31,7 +35,12 @@ def upload(socket_id):  # put application's code here
         return 'AWS credentials not available.', 401
 
     try:
-        rabbitmq_util.publish(uploaded_file.filename)
+        data = {
+            'file_name': uploaded_file.filename,
+            'pyscene_threshold': pyscene_threshold,
+            'min_scene_length': min_scene_length
+        }
+        rabbitmq_util.publish(json.dumps(data))
     except Exception as e:
         app.logger.error(e)
         return "Unexpected error occurred in pika module", 500
