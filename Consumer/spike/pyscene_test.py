@@ -3,7 +3,7 @@ import json
 import scenedetect
 from datetime import datetime
 
-video_path = '/Users/trinanjan/Desktop/Microservice/Consumer/video/ALADDIN_TLR-1_1920x800_PDA_51-thedigitaltheater.mkv'
+video_path = '../video/ALADDIN_TLR-1_1920x800_PDA_51-thedigitaltheater(1).mp4'
 
 
 def detect_scenes(start_time, end_time):
@@ -18,14 +18,36 @@ def detect_scenes(start_time, end_time):
 # TODO: Merge the interval of times. Say shot 4 has end time 00::00::04:34 and shot 5 has end time as 00::00::06:21
 #  and we want to eliminate shot 5 then make shot 4's end time as 00::00::06:21
 def filter_json():
-    rekognition_json_path = '/Users/trinanjan/Desktop/Microservice/Consumer/json/ALADDIN_TLR-1_1920x800_PDA_51-thedigitaltheater(1).json'
+    rekognition_json_path = '../json/ALADDIN_TLR-1_1920x800_PDA_51-thedigitaltheater(1).json'
     with open(rekognition_json_path, 'r') as rekognition_json:
         data = json.load(rekognition_json)
-        print(len(data))
+        # print(len(data))
 
         # Taking only the scenes whose duration is more than 1.5 seconds
-        filtered_data = [d for d in data if d['DurationMillis'] > 1500]
-
+        # filtered_data = [d for d in data if d['DurationMillis'] > 1500]
+        filtered_data = []
+        for d in data:
+            shot_dict = {
+                "DurationMillis": d['DurationMillis'],
+                "StartTimecodeSMPTE": d['StartTimecodeSMPTE'],
+                "EndTimecodeSMPTE": d['EndTimecodeSMPTE'],
+                "Type": d["Type"]}
+            filtered_data.append(shot_dict)
+        i = 0
+        for d in filtered_data:
+            if d['DurationMillis'] < 1500:
+                if i == 0 or filtered_data[i - 1]['DurationMillis'] < 1500:
+                    filtered_data[i + 1]['DurationMillis'] += filtered_data[i]['DurationMillis']
+                    filtered_data[i + 1]['StartTimecodeSMPTE'] = filtered_data[i]['StartTimecodeSMPTE']
+                else:
+                    filtered_data[i - 1]['DurationMillis'] += filtered_data[i]['DurationMillis']
+                    filtered_data[i - 1]['EndTimecodeSMPTE'] = filtered_data[i]['EndTimecodeSMPTE']
+            i += 1
+        filtered_data = [d for d in filtered_data if d['DurationMillis'] > 1500]
+        for index, item in enumerate(filtered_data):
+            item['Index'] = index
+        # print(len(filtered_data))
+        print(json.dumps(filtered_data))
         return filtered_data
 
 
@@ -51,7 +73,7 @@ if __name__ == '__main__':
         result = detect_scenes(start, end)
         if len(result) == 0:
             continue
-        print(f"{shot['ShotSegment']['Index']} : {shot['StartTimecodeSMPTE']} -> {shot['EndTimecodeSMPTE']}")
+        print(f"{shot['Index']} : {shot['StartTimecodeSMPTE']} -> {shot['EndTimecodeSMPTE']}")
         for r in result:
             s = r[0].get_timecode()
             e = r[1].get_timecode()
