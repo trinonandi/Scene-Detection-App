@@ -4,4 +4,4 @@ COPY . /app
 RUN pip install --upgrade pip setuptools
 RUN pip install -r requirements.txt
 EXPOSE 8000
-CMD gunicorn --worker-class eventlet -w 1 app:app
+CMD gunicorn --worker-class eventlet -w 1 app:app -b 0.0.0.0:8000
