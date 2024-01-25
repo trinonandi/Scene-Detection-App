@@ -10,7 +10,7 @@ app = Flask(__name__, static_url_path='/static')
 socketio = SocketIO(app)
 
 # Specify allowed origins. Need to find a better way
-CORS(app, resources={r"/sse": {"origins": ["http://127.0.0.1:5000", "http://localhost:63342"]}})
+CORS(app, resources={r"/sse": {"origins": ["http://127.0.0.1:5000", "http://localhost:8000"]}})
 
 
 # Testing frontend
@@ -18,7 +18,9 @@ CORS(app, resources={r"/sse": {"origins": ["http://127.0.0.1:5000", "http://loca
 def home():
     return send_from_directory('static', 'index.html')
 
-
+@app.route('/test')
+def test():
+    return "Producer is up", 200
 @app.route('/upload/<socket_id>', methods=['POST'])
 def upload(socket_id):  # put application's code here
     print(request.files.keys())
