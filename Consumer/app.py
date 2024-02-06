@@ -2,12 +2,12 @@ import threading
 
 from flask import Flask
 
-from utils import consumer
+import rabbit_consumer
 
 app = Flask(__name__)
 
 # Start RabbitMQ consumer in a separate thread
-rabbitmq_thread = threading.Thread(target=consumer.consume)
+rabbitmq_thread = threading.Thread(target=rabbit_consumer.consume)
 rabbitmq_thread.start()
 
 
@@ -17,4 +17,4 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=8000)

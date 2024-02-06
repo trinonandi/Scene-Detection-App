@@ -5,7 +5,8 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from dotenv import load_dotenv
 
-from utils.s3_utils import upload_file
+from utils.s3_utils import upload_file, download_file
+from utils.pyscene_util import PySceneUtil
 
 load_dotenv()
 
@@ -54,14 +55,19 @@ def start_detect(file_name):
     return None
 
 
-def get_result(job_id, file_name):
+# TODO: Rename this method. Name should relate to PyScene Detect
+def get_result(job_id, file_name, scene_threshold, min_scene_length):
     response = rekognition_client.get_segment_detection(JobId=job_id)
     # Convert JSON data to string
     json_str = json.dumps(response['Segments'])
+    rekognition_result_json = response['Segments']
+    download_file(file_name)
+
+    scene_util = PySceneUtil(file_name, rekognition_result_json, scene_threshold, min_scene_length)
+    scene_util.start_detection()
 
     # TODO: Needs a better naming convention
     file_name = file_name.replace("video", "result").split(".")[0] + ".json"
     print(file_name)
     print(json_str)
     upload_file(json_str, file_name)
-

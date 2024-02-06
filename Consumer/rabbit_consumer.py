@@ -5,7 +5,7 @@ import ssl
 
 from dotenv import load_dotenv
 
-from utils import rekognition
+from utils import rekognition_util
 from utils.sqs_utils import get_sqs_message_success
 
 load_dotenv()
@@ -34,14 +34,17 @@ def callback(ch, method, properties, body):
     message = json.loads(body.decode('utf-8'))
     print(message)
     video_identifier = message.get('file_name')
+    pyscene_threshold = int(message.get('pyscene_threshold'))
+    min_scene_length = int(message.get('min_scene_length'))
 
     # call the rekognition apu and start the job with a jobid
-    job_id = rekognition.start_detect(video_identifier)
+    job_id = rekognition_util.start_detect(video_identifier)
     if job_id is not None:
         # pass the jodid and match with the messages received and sqs and check status
         # if status success get the result
         # store the result to s3
         get_sqs_message_success(job_id, video_identifier)
+        rekognition_util.get_result(job_id, video_identifier, pyscene_threshold, min_scene_length)
 
 
 if __name__ == '__main__':

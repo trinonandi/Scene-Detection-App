@@ -1,5 +1,6 @@
 # Configure AWS credentials
 import os
+import sys
 
 import boto3
 from dotenv import load_dotenv
@@ -20,3 +21,20 @@ def upload_file(body, file_name):
                   Key=file_name
                   )
     print("Response stored in S3")
+
+
+def download_file(file_name):
+    meta_data = s3.head_object(Bucket=AWS_BUCKET_NAME, Key=file_name)
+    total_length = int(meta_data.get('ContentLength', 0))
+    downloaded = 0
+
+    def progress(chunk):
+        nonlocal downloaded
+        downloaded += chunk
+        done = int(50 * downloaded / total_length)
+        sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50 - done)))
+        sys.stdout.flush()
+
+    with open(f'/Users/trinanjan/Desktop/Microservice/Consumer/video/{file_name}', 'wb') as file:
+        print("Downloading Started")
+        s3.download_fileobj(AWS_BUCKET_NAME, file_name, file, Callback=progress)
