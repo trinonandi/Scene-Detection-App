@@ -1,5 +1,6 @@
 # Configure AWS credentials
 import os
+import pathlib
 import sys
 
 import boto3
@@ -14,6 +15,8 @@ AWS_BUCKET_NAME = os.getenv('AWS_BUCKET_NAME')
 # create a client
 s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY)
 
+
+cwd = pathlib.Path(__file__).parent
 
 def upload_file(body, file_name):
     s3.put_object(Body=body,
@@ -35,6 +38,8 @@ def download_file(file_name):
         sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50 - done)))
         sys.stdout.flush()
 
-    with open(f'/Users/trinanjan/Desktop/Microservice/Consumer/video/{file_name}', 'wb') as file:
+    path = os.path.join(cwd.parent, f'video/{file_name}')
+    print(path)
+    with open(path, 'wb') as file:
         print("Downloading Started")
         s3.download_fileobj(AWS_BUCKET_NAME, file_name, file, Callback=progress)

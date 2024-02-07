@@ -5,8 +5,9 @@ import ssl
 
 from dotenv import load_dotenv
 
-from utils import rekognition_util
+from utils import rekognition_util, s3_utils
 from utils.sqs_utils import get_sqs_message_success
+
 
 load_dotenv()
 

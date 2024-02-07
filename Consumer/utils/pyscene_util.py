@@ -1,10 +1,13 @@
 import json
 import os.path
+import pathlib
 
 import scenedetect
 from datetime import datetime
+from utils import s3_utils
 
 
+cwd = pathlib.Path(__file__).parent
 def to_timecode(timecode):
     time_format = "%H:%M:%S:%f"
     time_object = datetime.strptime(timecode, time_format)
@@ -22,9 +25,11 @@ class PySceneUtil:
 
     # TODO: Need to remove static file path
     def __init__(self, video_file_name, rekognition_json, scene_threshold, min_scene_length):
-        self.video_path = os.path.join('/Users/trinanjan/Desktop/Microservice/Consumer/video', video_file_name)
+        self.video_file_name = video_file_name
+        self.video_path = os.path.join(cwd.parent, f'video/{video_file_name}')
         self.rekognition_json = rekognition_json
         self.detector = scenedetect.ContentDetector(threshold=scene_threshold, min_scene_len=min_scene_length)
+
 
     def filter_rekognition_json(self):
         filtered_data = []
@@ -56,6 +61,7 @@ class PySceneUtil:
     # TODO: Delete the video file once the processing ends
 
     def start_detection(self):
+        s3_utils.download_file(self.video_file_name)
         shots = self.filter_rekognition_json()
         for shot in shots:
             start = to_timecode(shot['StartTimecodeSMPTE'])

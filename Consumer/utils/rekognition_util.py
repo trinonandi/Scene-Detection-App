@@ -61,7 +61,6 @@ def get_result(job_id, file_name, scene_threshold, min_scene_length):
     # Convert JSON data to string
     json_str = json.dumps(response['Segments'])
     rekognition_result_json = response['Segments']
-    download_file(file_name)
 
     scene_util = PySceneUtil(file_name, rekognition_result_json, scene_threshold, min_scene_length)
     scene_util.start_detection()
