@@ -63,7 +63,7 @@ def get_result(job_id, file_name, scene_threshold, min_scene_length):
     rekognition_result_json = response['Segments']
 
     scene_util = PySceneUtil(file_name, rekognition_result_json, scene_threshold, min_scene_length)
-    scene_util.start_detection()
+    json_str = json.dumps(scene_util.start_detection())
 
     # TODO: Needs a better naming convention
     file_name = file_name.replace("video", "result").split(".")[0] + ".json"
