@@ -6,8 +6,9 @@ import scenedetect
 from datetime import datetime
 from utils import s3_utils
 
-
 cwd = pathlib.Path(__file__).parent
+
+
 def to_timecode(timecode):
     time_format = "%H:%M:%S:%f"
     time_object = datetime.strptime(timecode, time_format)
@@ -29,7 +30,6 @@ class PySceneUtil:
         self.video_path = os.path.join(cwd.parent, f'video/{video_file_name}')
         self.rekognition_json = rekognition_json
         self.detector = scenedetect.ContentDetector(threshold=scene_threshold, min_scene_len=min_scene_length)
-
 
     def filter_rekognition_json(self):
         filtered_data = []
@@ -69,8 +69,20 @@ class PySceneUtil:
             result = scenedetect.detect(self.video_path, detector=self.detector, start_time=start, end_time=end)
             if len(result) == 0:
                 continue
+            index = 0
+            subshots = []
             for r in result:
                 s = r[0].get_timecode()
                 e = r[1].get_timecode()
-                print(f"{s} to {e}")
-
+                if s == e:
+                    continue
+                subshot_dict = {
+                    "index": index,
+                    "Type": "SUBSHOT",
+                    "StartTimeCode": s,
+                    "EndTimeCode": e
+                }
+                index += 1
+                subshots.append(subshot_dict)
+            shot["Subshots"] = subshots
+        return shots
